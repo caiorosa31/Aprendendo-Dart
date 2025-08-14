@@ -1,0 +1,73 @@
+// Definição da classe Personagem
+class Personagem {
+  // Atributo obrigatório: nome do personagem (não pode ser nulo)
+  final String nome;
+
+  // Atributo opcional com valor padrão: nível do personagem (padrão: 1)
+  final int nivel;
+
+  // Atributo opcional e anulável: força do personagem (pode ser null)
+  final int? forca;
+
+  // Atributo opcional e anulável: apelido do personagem (pode ser null)
+  final String? apelido;
+
+  /* 
+    Construtor da classe Personagem.
+    - O nome é obrigatório.
+    - Os outros parâmetros estão entre chaves, o que significa que são opcionais nomeados.
+    - Caso não sejam fornecidos, terão valores padrão (exceto apelido).
+  */
+  Personagem(
+    this.nome, {
+    this.nivel = 1,   // valor padrão de nível: 1
+    this.forca = 5,   // valor padrão de força: 5
+    this.apelido,     // pode ser null
+  });
+
+  /*
+    Método que calcula o poder do personagem.
+    - Se a força for nula, usa 10 como valor padrão.
+    - Poder é o produto da força pelo nível.
+  */
+  int poder() {
+    return (forca ?? 10) * nivel;
+  }
+
+  /*
+    Método que retorna uma descrição do personagem.
+    - Parâmetro opcional: saudacao (mensagem de saudação)
+    - Se saudacao for null, usa "Opa" como padrão.
+    - Se apelido for null, usa o nome do personagem.
+  */
+  String descricao({String? saudacao}) {
+    final s = saudacao ?? "Opa";        // saudação padrão
+    final chamado = apelido ?? nome;    // usa apelido se existir, senão o nome
+    return '$s, eu sou $chamado (nível $nivel). Poder: ${poder()} Forca: $forca';
+  }
+}
+
+// Função principal do programa
+void main() {
+  // Criação de um personagem com nome e nível. Força e apelido usam valores padrão.
+  final p1 = Personagem("Aria", nivel: 2);
+
+  // Criação de um personagem com todos os parâmetros definidos.
+  final p2 = Personagem("Suriel", nivel: 99, forca: 75, apelido: "Camelo");
+
+  // Impressão da descrição de cada personagem.
+  print(p1.descricao());                     // Usa saudação padrão "Opa"
+  print(p2.descricao(saudacao: 'Oi'));       // Usa saudação personalizada "Oi"
+}
+
+
+✅ Recursos utilizados:
+Null Safety: uso do ? nos tipos para permitir valores nulos.
+
+Parâmetros opcionais nomeados: {} no construtor e no método descricao.
+
+Valores padrão para parâmetros: this.nivel = 1, this.forca = 5.
+
+Operador de coalescência nula (??): usado para fornecer valores padrão quando variáveis são nulas.
+
+Encapsulamento com final: atributos não podem ser alterados depois da criação do objeto.
