@@ -10,6 +10,7 @@ double precoFinal(
   // TODO 2: se cupom (case-insensitive) for "FRETEGRATIS", frete = 0
   final temFreteGratis = cupom?.toUpperCase() == 'FRETEGRATIS';
   final freteAplicado = temFreteGratis ? 0 : frete;
+  /* se temFreteGratis for verdadeiro, vai ser = 0, se for false vai ser o valor de frete */
 
   // TODO 3: retorne preco com desconto + freteAplicado
   return preco * (1 - d/100) + freteAplicado;
@@ -19,7 +20,7 @@ double precoFinal(
 String resumoPedido(
   double preco, {
   double? desconto,
-  double frete = 0,
+  double frete = 15,
   String? cupom,
 }) {
   final total = precoFinal(
@@ -38,7 +39,9 @@ String resumoPedido(
     /* (cupom?.toUpperCase() == 'FRETEGRATIS') ? 0 : frete */
 
   // TODO 6: formate números com 2 casas (toStringAsFixed)
-  return 'Preço: R\$ ${/* preco.toStringAsFixed(2) */ preco.toStringAsFixed(2)}'
+  return '-------------------------------------------------------------------------------------------'
+         '                          '
+         'Preço: R\$ ${/* preco.toStringAsFixed(2) */ preco.toStringAsFixed(2)}'
          ' | Desc: ${/* d.toStringAsFixed(0) */ d.toStringAsFixed(0)}%'
          ' | Frete: R\$ ${/* freteAplicado.toStringAsFixed(2) */ freteAplicado.toStringAsFixed(2)}'
          ' | Cupom: $c'
@@ -47,6 +50,8 @@ String resumoPedido(
 
 void main() {
   // Exemplo 1
+  print(resumoPedido(50, desconto: 5, frete: 10));
+  
   print(resumoPedido(100, desconto: 10, frete: 20));
 
   // Exemplo 2 (cupom frete grátis, qualquer mistura de maiúsc./minúsc. deve funcionar)
