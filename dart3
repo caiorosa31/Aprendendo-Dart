@@ -1,0 +1,67 @@
+bool notaValida(double n) => n >= 0 && n <= 10;
+/* É uma arrow function onde depois da seta fica a expressão da função */
+
+// Calcula a média de 2 ou 3 notas.
+// Se alguma nota for inválida, retorne null.
+double? media({
+  // TODO 1: torne n1 e n2 obrigatórios com 'required'
+  required double? n1,
+  required double? n2,
+           double? n3,
+}) {
+  int q;
+  // TODO 2: valide as notas (use notaValida). Se alguma inválida, retorne null.
+  // Dica: if (!(notaValida(n1!) && notaValida(n2!) && (n3 == null || notaValida(n3)))) return null;
+  if (!(notaValida(n1!) && notaValida(n2!) && (n3 == null || notaValida(n3)))) return null;
+  // TODO 3: some n1 + n2 + (n3 ?? 0)
+  final soma = n1 + n2 + (n3 ?? 0);
+
+  if (n3 == null) {
+    q = 2;
+  } else {
+    q = 3;
+  }
+  
+  // TODO 4: defina a quantidade (2 ou 3) dependendo de n3 ser null
+  final qtd = q;
+
+  // TODO 5: retorne a média (soma / qtd)
+  return (soma /qtd);
+}
+
+// Retorna o conceito (A, B, C, D, E) a partir da média.
+String conceito(double m) {
+  if (m >= 9.0) return 'A';
+  if (m >= 7.5) return 'B';
+  if (m >= 6.0) return 'C';
+  if (m >= 4.0) return 'D';
+  return 'E';
+}
+
+// Monta um texto-resumo; se média for null, avisa que há notas inválidas.
+String resumoNotas({
+  // TODO 6: n1 e n2 obrigatórios
+  required double? n1,
+  required double? n2,
+  double? n3,
+}) {
+  final m = media(n1: n1, n2: n2, n3: n3);
+
+  if (m == null) {
+    return 'Notas inválidas';
+  }
+
+  // TODO 7: formate com 2 casas; se n3 for null, mostre '-' no lugar.
+  final n3Txt = /* n3?.toStringAsFixed(1) ?? '-' */ n3?.toStringAsFixed(1) ?? ' - ';
+  return 'N1:${/* n1!.toStringAsFixed(1) */ n1!.toStringAsFixed(1)}  '
+         'N2:${/* n2!.toStringAsFixed(1) */ n2!.toStringAsFixed(1)}  '
+         'N3:$n3Txt  '
+         'Média:${/* m.toStringAsFixed(2) */ m.toStringAsFixed(2)}  '
+         'Conceito:${/* conceito(m) */ conceito(m)}';
+}
+
+void main() {
+  print(resumoNotas(n1: 7.0, n2: 7.0, n3: 7.0));           // sem N3
+  print(resumoNotas(n1: 9.2, n2: 6.8, n3: 7.5));  // com N3
+  print(resumoNotas(n1: 8.0, n2: 8.0));          // inválida
+}
