@@ -1,0 +1,34 @@
+class Personagem {
+  final String nome;
+  final int nivel;
+  final int? forca;
+  final String? apelido;
+
+  // Construtor com initializing formals + parâmetros nomeados/ opcionais
+  Personagem(
+    this.nome, {
+    this.nivel = 1,
+    this.forca,
+    this.apelido,
+  });
+
+  int poder() {
+    // Se forca for null, usa 10 como base
+    return (forca ?? 10) * nivel;
+    // Ex.: forca = null, nivel = 2 -> 20
+  }
+
+  String descricao({String? saudacao}) {
+    final s = saudacao ?? 'Olá';
+    final chamado = apelido ?? nome;
+    return '$s, eu sou $chamado (nível $nivel). Poder: ${poder()}';
+  }
+}
+
+void main() {
+  final p1 = Personagem('Aria');
+  final p2 = Personagem('Rurik', nivel: 3, forca: 12, apelido: 'Lobo');
+
+  print(p1.descricao());               // Usa saudação padrão e nome (sem apelido)
+  print(p2.descricao(saudacao: 'Oi')); // Usa 'Oi' e o apelido 'Lobo'
+}
