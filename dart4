@@ -1,0 +1,42 @@
+class Produto {
+  final String nome;
+  final double preco;
+  final double? desconto; // em %
+
+  // TODO 1: construtor com parâmetros nomeados; nome e preco obrigatórios
+  // Produto({required this.nome, required this.preco, this.desconto});
+   Produto({
+    required this.nome,
+    required this.preco,
+    this.desconto,
+  });
+
+  // Retorna o preço aplicando o desconto (use ?? para tratar null como 0).
+  double precoFinal() {
+    // TODO 2: use desconto ?? 0
+    final d = desconto ?? 0;
+    return preco * (1 - d / 100);
+  }
+
+  // Monta a etiqueta do produto com moeda (padrão 'R$') e 2 casas.
+  String etiqueta({String? moeda}) {
+    // TODO 3: moeda padrão 'R$'
+    final m = moeda ?? 'R\$';
+    final valor = precoFinal();
+    return '$nome - $m ${valor.toStringAsFixed(2)}';
+  }
+}
+
+void main() {
+  // TODO 4: crie 3 produtos e imprima as etiquetas
+  final p1 = Produto(nome: 'Caio', preco: 20);
+  final p2 = Produto(nome: 'Isabelli', preco: 49, desconto: 10);
+  final p3 = Produto(nome: 'Joao', preco: 20, desconto: 25 );
+  
+  print(p1.etiqueta(moeda: 'USD'));
+  print(p2.etiqueta());
+  print(p3.etiqueta());
+  // Produto 1: sem desconto
+  // Produto 2: com 10%
+  // Produto 3: com 25% e moeda 'USD'
+}
