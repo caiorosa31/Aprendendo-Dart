@@ -1,0 +1,41 @@
+double precoFinal(
+  double preco, {
+  double? desconto,
+  double frete = 0,
+  String? cupom,
+}) {
+  final d = desconto ?? 0;
+  final temFreteGratis = cupom?.toUpperCase() == 'FRETEGRATIS';
+  final freteAplicado = temFreteGratis ? 0 : frete;
+  return preco * (1 - d / 100) + freteAplicado;
+}
+
+String resumoPedido(
+  double preco, {
+  double? desconto,
+  double frete = 0,
+  String? cupom,
+}) {
+  final total = precoFinal(
+    preco,
+    desconto: desconto,
+    frete: frete,
+    cupom: cupom,
+  );
+
+  final d = desconto ?? 0;
+  final c = cupom ?? '-';
+  final freteAplicado = (cupom?.toUpperCase() == 'FRETEGRATIS') ? 0 : frete;
+
+  return 'Preço: R\$ ${preco.toStringAsFixed(2)}'
+      ' | Desc: ${d.toStringAsFixed(0)}%'
+      ' | Frete: R\$ ${freteAplicado.toStringAsFixed(2)}'
+      ' | Cupom: $c'
+      ' | Total: R\$ ${total.toStringAsFixed(2)}';
+}
+
+void main() {
+  print(resumoPedido(100, desconto: 10, frete: 20));
+  print(resumoPedido(100, frete: 15, cupom: 'freteGRATIS'));
+  print(resumoPedido(59.9));
+}
