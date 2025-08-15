@@ -1,0 +1,44 @@
+bool notaValida(double n) => n >= 0 && n <= 10;
+
+double? media({
+  required double n1,
+  required double n2,
+  double? n3,
+}) {
+  if (!notaValida(n1) || !notaValida(n2) || (n3 != null && !notaValida(n3))) {
+    return null;
+  }
+  final soma = n1 + n2 + (n3 ?? 0);
+  final qtd = (n3 == null) ? 2 : 3;
+  return soma / qtd;
+}
+
+String conceito(double m) {
+  if (m >= 9.0) return 'A';
+  if (m >= 7.5) return 'B';
+  if (m >= 6.0) return 'C';
+  if (m >= 4.0) return 'D';
+  return 'E';
+}
+
+String resumoNotas({
+  required double n1,
+  required double n2,
+  double? n3,
+}) {
+  final m = media(n1: n1, n2: n2, n3: n3);
+  if (m == null) return 'Notas inválidas';
+
+  final n3Txt = n3?.toStringAsFixed(1) ?? '-';
+  return 'N1:${n1.toStringAsFixed(1)}  '
+         'N2:${n2.toStringAsFixed(1)}  '
+         'N3:$n3Txt  '
+         'Média:${m.toStringAsFixed(2)}  '
+         'Conceito:${conceito(m)}';
+}
+
+void main() {
+  print(resumoNotas(n1: 8.0, n2: 7.0));
+  print(resumoNotas(n1: 9.2, n2: 6.8, n3: 7.5));
+  print(resumoNotas(n1: 11.0, n2: 8.0));
+}
