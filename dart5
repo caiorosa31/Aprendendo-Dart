@@ -1,0 +1,102 @@
+class Missao {
+  int? id;
+  final String titulo;
+  int? recompensa;
+  String? descricao;
+  bool concluida;
+
+  // TODO 1: construtor nomeado com required e valores padrão
+  // Dica: Missao({this.id, required this.titulo, this.recompensa, this.descricao, this.concluida = false});
+
+  Missao({
+    this.id,
+    required this.titulo,
+    this.recompensa,
+    this.descricao,
+    this.concluida = false,
+  });
+  // TODO 2: factory que cria a partir de um Map<String, dynamic>
+  // Use ?? para títulos ausentes, concluida padrão false, etc.
+  // Dica: acessar map['campo'] as Tipo? e tratar com ?? quando necessário.
+  factory Missao.fromMap(Map<String, dynamic> map) {
+    // TODO: retornar um Missao(...)
+    return Missao(
+      id: map['id'] as int?,
+      titulo: map['titulo'] ?? 'Titulo não encontrado',
+      recompensa: map['recompensa'] as int?,
+      descricao: map['descricao'] as String?,
+      concluida: map['concluida'] ?? false,
+    );
+  }
+
+  // Cálculo simples de XP
+  int xp() {
+    // TODO 3: use ?? e ?.length
+    // 50 + (recompensa ?? 0) ~/ 10 + (descricao?.length ?? 0) ~/ 20
+    return 50 + (recompensa ?? 0) ~/ 10 + (descricao?.length ?? 0) ~/ 20;
+  }
+
+  // Marca como concluída
+  void marcarConcluida() {
+    // TODO 4: mudar o estado para concluída
+    concluida = true;
+  }
+
+  // Texto de resumo
+  String resumo() {
+    // TODO 5: usar ?. e ?? para montar o resumo
+    final idStr = id?.toString() ?? '-'; /* id?.toString() ?? '-' */
+    ;
+    final d = descricao ?? '(sem desc.)'; /* descricao ?? '(sem desc.)' */
+    ;
+    return '[$idStr] $titulo | XP=${xp()} | Concluída: $concluida | Desc: $d';
+  }
+}
+
+void main() {
+  // Dados crus (simulando "JSON")
+  final dadosBrutos = <Map<String, dynamic>>[
+    {'id': 1, 'titulo': 'Caçar slimes', 'recompensa': 120},
+    {'titulo': 'Entregar carta', 'descricao': 'Levar ao vilarejo vizinho'},
+    {
+      'id': 3,
+      'titulo': 'Explorar caverna',
+      'recompensa': null,
+      'concluida': true,
+    },
+  ];
+
+  // TODO 6: converter para List<Missao> usando a factory
+  final missoes = dadosBrutos
+      .map((d) => Missao.fromMap(d))
+      .toList(); // substitua pela conversão correta
+
+  // TODO 7: criar missão extra sem id e com alguma recompensa
+  var extra = Missao(
+    titulo: 'Treino',
+    recompensa: 80,
+  ); /* Missao(titulo: 'Treino', recompensa: 80) */
+  ;
+
+  // Gerar próximo id sequencial com base no maior id existente
+  final maiorId = missoes
+      .map((m) => m.id ?? 0)
+      .fold<int>(0, (acc, v) => v > acc ? v : acc);
+  final proximoId = maiorId + 1;
+
+  // TODO 8: use ??= para setar o id da extra apenas se for null
+  // extra.id ??= proximoId;
+  extra.id ??= proximoId;
+
+  // TODO 9: use operador cascata .. na missão extra para marcar concluída
+  // e definir uma descricao padrão apenas se ainda estiver nula (??=)
+  // Ex.: extra..marcarConcluida()..descricao ??= 'Sessão rápida de treino';
+  extra
+    ..marcarConcluida()
+    ..descricao ??= 'Sessão rápida de treino';
+
+  // Imprimir resumos
+  for (final m in [...missoes, extra]) {
+    print(m.resumo());
+  }
+}
