@@ -1,0 +1,271 @@
+import 'dart:math';
+
+enum ColorStyle { emoji, none }
+const colorStyle = ColorStyle.emoji;
+
+String paint(String txt, {required bool isEight, required Suit suit}) {
+  if (colorStyle == ColorStyle.none) return txt;
+  if (isEight) return '🟩$txt';
+  final isRed = suit == Suit.hearts || suit == Suit.diamonds;
+  return isRed ? '🟥$txt' : '⬜$txt';
+}
+
+enum Suit { spades, hearts, diamonds, clubs }
+
+String suitSymbol(Suit s) =>
+    {Suit.spades: '♠', Suit.hearts: '♥', Suit.diamonds: '♦', Suit.clubs: '♣'}[s]!;
+
+class Card {
+  // TODO: declarar os campos obrigatórios da carta (rank e suit).
+    final String rank;
+    final Suit suit;
+  
+  // TODO: criar o construtor.
+  
+  Card({
+    required this.rank,
+    required this.suit,
+  });
+  // TODO: criar a propriedade isEight que retorna true quando rank == '8'.
+  bool get isEight => rank == '8';
+
+  // Mantido: função de exibição com “cores” (não alterar).
+  String disp() => paint('$rank${suitSymbol(suit)}', isEight: isEight, suit: suit);
+}
+
+class Deck {
+  final _r = Random();
+  final List<Card> _cards = [];
+
+  Deck() {
+    // TODO: preencher o baralho com 52 cartas (13 ranks × 4 naipes) e embaralhar.
+    // Dica de ranks: ['2','3','4','5','6','7','8','9','10','J','Q','K','A']
+    const ranks = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+    // TODO: usar _cards.shuffle(_r) no final.
+    for (final s in Suit.values) {
+      for (final r in ranks) {
+        _cards.add(Card(rank: r, suit: s));
+      }
+    }
+    _cards.shuffle(_r);
+  }
+
+  bool get isEmpty => _cards.isEmpty;
+
+  Card draw() {
+    // TODO: remover e retornar a carta do topo do baralho.
+    // TODO: tratar erro se o baralho estiver vazio.
+    if (_cards.isEmpty) throw StateError('Deck vazio.');
+    return _cards.removeLast();
+  }
+
+  void addAllAndShuffle(Iterable<Card> cards) {
+    // TODO: adicionar as cartas recebidas ao baralho e embaralhar.
+    _cards.addAll(cards);
+    _cards.shuffle(_r);
+  }
+}
+
+class Player {
+  final String name;
+  final List<Card> hand = [];
+  Player(this.name);
+
+  // Mantido: exibe a mão como texto (não alterar).
+  String handDisp() => '[ ${hand.map((c) => c.disp()).join(' ')} ] (${hand.length})';
+}
+
+class CrazyEights {
+  final List<Player> players = [Player('P1'), Player('P2'), Player('P3'), Player('P4')];
+  final Deck deck = Deck();
+  final List<Card> discard = [];
+  final _rng = Random();
+
+  Suit? requiredSuit;
+
+  void dealInitial() {
+    // TODO: dar 5 cartas para cada jogador.
+    for(int i = 0; i < 5; i++) {
+      for( final player in players) {
+        player.hand.add(deck.draw());
+      }
+    }
+    // TODO: virar a primeira carta do deck para a pilha de descarte.
+    final firstcard = deck.draw();
+    discard.add(firstcard);
+    // TODO: se a primeira carta for 8, escolher um naipe inicial (aleatório).
+    if (firstcard.isEight) {
+    requiredSuit = Suit.values[_rng.nextInt(Suit.values.length)];
+    print('Primeira carta foi um 8! Naipe obrigatório escolhido: $requiredSuit');
+    } else {
+    requiredSuit = null;
+  }
+  }
+
+  Card get top {
+    // TODO: retornar a carta do topo do descarte.
+    if (discard.isEmpty) throw StateError('Pilha de descarte vazia');
+    return discard.last;
+  }
+
+  bool isPlayable(Card c) {
+    // TODO: implementar a regra de jogada:
+    final Card topCard = top;
+    // - 8 sempre pode.
+    if (c.isEight) return true;
+    // - se requiredSuit != null, só cartas desse naipe podem.
+    if (requiredSuit != null) {
+    return c.suit == requiredSuit;
+    }
+    // - senão, casa por naipe OU por rank com o topo.
+    return c.suit == topCard.suit || c.rank == topCard.rank;
+  }
+
+  Suit chooseSuitForEight(Player p) {
+    // TODO: escolher o naipe mais frequente na mão (ignorando 8).
+    // Dica: faça um mapa <Suit,int> de contagens e retorne o de maior valor; empate pode ser aleatório.
+    final counts = <Suit, int>{};
+    
+    for (var suit in Suit.values) {
+      counts[suit] = 0;
+    }
+    
+    for (var card in p.hand) {
+      if (card.rank != '8') {
+        counts[card.suit] = counts[card.suit]! + 1;
+      }
+    }
+    
+    int maxCount = counts.values.reduce((a, b) => a > b ? a : b);
+    
+    final candidates = counts.entries
+    .where((entry) => entry.value == maxCount)
+    .map((entry) => entry.key)
+    .toList();
+    
+    final rng = Random();
+    return candidates[rng.nextInt(candidates.length)];
+    
+  }
+
+  void refillDeckIfNeeded() {
+    // TODO: se o deck acabou e há mais de 1 carta no descarte:
+    if (deck._cards.isEmpty && discard.length > 1) {
+    // - guarde o topo,
+      final Card topCard = discard.removeLast();
+    // - mova o restante do descarte para o deck e embaralhe,
+      deck.addAllAndShuffle(discard);
+    // - devolva o topo para o descarte.
+      discard.clear();
+      discard.add(topCard);
+    }
+  }
+
+  Card? chooseCardToPlay(Player p) {
+    // TODO: estratégia simples:
+    // - encontre cartas jogáveis,
+    final playableCards = p.hand.where((card) => isPlayable(card)).toList();
+
+    if (playableCards.isEmpty) {
+      return null;
+    }
+    // - prefira NÃO gastar 8 se houver outra carta jogável,
+    final nonEights = playableCards.where((card) => !card.isEight).toList();
+     if (nonEights.isNotEmpty) {
+    return nonEights.first;
+    }
+    // - se só houver 8, jogue 8,
+    
+    return playableCards.first; 
+    // - se não houver nenhuma, retorne null.
+  }
+
+  void run() {
+  dealInitial();
+  printState();
+
+  const maxTurns = 1000;  // limite para evitar loop infinito
+  int currentPlayerIndex = 0;
+
+  for (int turn = 0; turn < maxTurns; turn++) {
+    final Player p = players[currentPlayerIndex];
+    print('\nTurno de ${p.name}');
+
+    Card? chosenCard = chooseCardToPlay(p);
+
+    if (chosenCard == null) {
+      // Comprar cartas até achar uma jogável ou limite por turno
+      const maxDrawsPerTurn = 5;
+      int draws = 0;
+
+      while (chosenCard == null && draws < maxDrawsPerTurn) {
+        refillDeckIfNeeded();
+
+        if (deck._cards.isEmpty) {
+          print('Deck vazio e nenhuma carta jogável encontrada.');
+          break; // Não tem mais cartas para comprar
+        }
+
+        final drawnCard = deck.draw();
+        print('${p.name} compra ${drawnCard.disp()}');
+        p.hand.add(drawnCard);
+        draws++;
+
+        if (isPlayable(drawnCard)) {
+          chosenCard = drawnCard;
+        }
+      }
+
+      if (chosenCard == null) {
+        print('${p.name} não pode jogar nesta rodada.');
+        // Passa a vez
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+        printState();
+        continue;
+      }
+    }
+
+    // Jogar a carta escolhida
+    p.hand.remove(chosenCard);
+    discard.add(chosenCard);
+
+    print('${p.name} joga ${chosenCard.disp()}');
+
+    if (chosenCard.isEight) {
+      requiredSuit = chooseSuitForEight(p);
+      print('${p.name} escolhe o naipe ${suitSymbol(requiredSuit!)}');
+    } else {
+      requiredSuit = null;
+    }
+
+    // Checar se o jogador venceu (mão vazia)
+    if (p.hand.isEmpty) {
+      printState();
+      print('\n${p.name} venceu o jogo! 🎉');
+      return;
+    }
+
+    // Fim do turno: mostrar estado e passar a vez
+    printState();
+    currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+  }
+
+  print('\nLimite de turnos atingido. O jogo terminou sem vencedor.');
+}
+
+  void printState() {
+    print('\nEstado atual:');
+    for (final p in players) {
+      print('  ${p.name}: ${p.handDisp()}');
+    }
+    final reqStr = (requiredSuit != null) ? ' (naipe declarado: 🟩${suitSymbol(requiredSuit!)})' : '';
+    print('  Descarte (topo): ${top.disp()}$reqStr');
+  }
+}
+
+void main() {
+  print('=== Oito Maluco — Exercício (4 jogadores) ===');
+  print('Complete os TODOs e depois chame a simulação.');
+  
+  CrazyEights().run();
+}
